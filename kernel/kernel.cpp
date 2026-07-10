@@ -1,7 +1,7 @@
 #include "terminal.h"
 #include "gdt.h"
 #include "idt.h"
-
+#include "pic.h"  
 extern "C" void kernel_main() {
     terminal_initialize();
     terminal_write("Welcome to bastOs\n");
@@ -11,8 +11,14 @@ extern "C" void kernel_main() {
     init_idt();
     terminal_write("IDT is loaded. Interrupts prepared.\n");
     
-    terminal_write("Error is loaded for testing.\n");
-    asm volatile("int $0x3");
-    terminal_write("If visible IDT does not work.\n");
+    pic_remap(0x20,0x28);
+    terminal_write("PIC reprogrammed.");
+
+    while(1)
+    {
+        asm volatile("hlt");
+    }
+    
+   
 }
 
