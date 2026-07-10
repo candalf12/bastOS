@@ -10,6 +10,9 @@ extern "C" void kernel_main() {
     terminal_write("GDT is loaded. Ring 3 structure is based.\n");
     init_idt();
     terminal_write("IDT is loaded. Interrupts prepared.\n");
-
+    
+    terminal_write("Error is loaded for testing.\n");
+    asm volatile("int $0x3");
+    terminal_write("If visible IDT does not work.\n");
 }
 
