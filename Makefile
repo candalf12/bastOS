@@ -4,12 +4,18 @@ CC = i686-elf-gcc
 CFLAGS = -std=c++17 -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti
 LDFLAGS = -T linker.ld -ffreestanding -O2 -nostdlib -lgcc
 
-OBJS = build/boot.o build/terminal.o build/kernel.o
-
+OBJS = build/boot.o build/gdt_flush.o build/gdt.o build/terminal.o build/kernel.o
+ 
 all: build/bastOs.bin
 
 build/boot.o: src/boot.s
 	$(AS) src/boot.s -o build/boot.o
+
+build/gdt_flush.o: src/gdt_flush.s
+	$(AS) src/gdt_flush.s -o build/gdt_flush.o
+
+build/gdt.o: src/gdt.cpp
+	$(CC) -c src/gdt.cpp -o build/gdt.o $(CFLAGS)
 
 build/terminal.o: src/terminal.cpp
 	$(CC) -c src/terminal.cpp -o build/terminal.o $(CFLAGS)
