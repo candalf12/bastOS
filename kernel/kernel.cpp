@@ -13,6 +13,8 @@ extern "C" void kernel_main() {
     
     pic_remap(0x20,0x28);
     terminal_write("PIC reprogrammed.");
+    asm volatile("sti");
+    terminal_write("Keystroke is being waited.");
 
     while(1)
     {

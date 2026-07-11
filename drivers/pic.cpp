@@ -41,8 +41,8 @@ void pic_remap(uint32_t offset1, uint32_t offset2) {
     outb(PIC2_DATA, ICW4_8086);
     io_wait();
 
-    outb(PIC1_DATA, a1);
-    outb(PIC2_DATA, a2);
+    outb(PIC1_DATA, 0xFD);
+    outb(PIC2_DATA, 0xFF);
 }
 
 void pic_send_eoi(uint8_t irq) {

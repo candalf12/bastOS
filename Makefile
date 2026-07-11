@@ -4,7 +4,7 @@ CC = i686-elf-gcc
 CFLAGS = -std=c++17 -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -Iinclude
 LDFLAGS = -T linker.ld -ffreestanding -O2 -nostdlib -lgcc
 
-OBJS = build/boot.o build/gdt_flush.o build/gdt.o build/idt_flush.o build/idt.o build/isrs.o build/isr.o build/pic.o build/terminal.o build/kernel.o
+OBJS = build/boot.o build/gdt_flush.o build/keyboard.o build/gdt.o build/idt_flush.o build/idt.o build/isrs.o build/isr.o build/pic.o build/terminal.o build/kernel.o
 
 all: build/bastOs.bin
 
@@ -37,6 +37,8 @@ build/pic.o: drivers/pic.cpp
 build/terminal.o: drivers/terminal.cpp
 	$(CC) -c drivers/terminal.cpp -o build/terminal.o $(CFLAGS)
 
+build/keyboard.o: drivers/keyboard.cpp
+	$(CC) -c drivers/keyboard.cpp -o build/keyboard.o $(CFLAGS)
 # --- KERNEL (kernel) ---
 build/kernel.o: kernel/kernel.cpp
 	$(CC) -c kernel/kernel.cpp -o build/kernel.o $(CFLAGS)

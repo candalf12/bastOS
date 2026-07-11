@@ -80,3 +80,18 @@ isr_common_stub:
 
     # hardware return from interrupt
     iret
+
+# --- HARDWARE INTERRUPTS (IRQs) ---
+
+# IRQ 1 (Keyboard) lands at IDT Entry 33
+.global irq1
+.extern keyboard_handler
+irq1:
+    cli                   #disable interrupts
+    pusha                
+
+    call keyboard_handler 
+
+    popa                 
+    sti                   # allow interrupts
+    iret                  

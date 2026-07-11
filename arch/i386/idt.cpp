@@ -11,6 +11,9 @@ extern "C" {
     void isr20(); void isr21(); void isr22(); void isr23();
     void isr24(); void isr25(); void isr26(); void isr27();
     void isr28(); void isr29(); void isr30(); void isr31();
+
+    void irq1();
+
 }
 
 idt_entry_t idt_entries[256];
@@ -64,6 +67,8 @@ void init_idt() {
     idt_set_gate(29, (uint32_t)isr29, 0x08, 0x8E);
     idt_set_gate(30, (uint32_t)isr30, 0x08, 0x8E);
     idt_set_gate(31, (uint32_t)isr31, 0x08, 0x8E);
-
+    
+    //Keyboard.
+    idt_set_gate(33, (uint32_t)irq1, 0x08, 0x8E);
     idt_flush((uint32_t)&idt_ptr);
 }
