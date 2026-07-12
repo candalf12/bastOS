@@ -83,6 +83,19 @@ isr_common_stub:
 
 # --- HARDWARE INTERRUPTS (IRQs) ---
 
+# IRQ 0 (Timer) lands at IDT Entry 32
+.global irq0
+.extern timer_handler
+irq0:
+    cli                   #disable interrupts
+    pusha                
+
+    call timer_handler 
+
+    popa                 
+    sti                   # allow interrupts
+    iret                  
+
 # IRQ 1 (Keyboard) lands at IDT Entry 33
 .global irq1
 .extern keyboard_handler
