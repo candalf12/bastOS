@@ -3,11 +3,23 @@
 #include "idt.h"
 #include "pic.h"  
 #include "timer.h"
-
-extern "C" void kernel_main() {
+#include "multiboot.h"
+#include "pmm.h"
+extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     terminal_initialize();
+    if(magic != MULTIBOOT_MAGIC){
+        terminal_write("invalid multiboot magic number.");
+        return;
+    }
     terminal_write("Welcome to bastOS\n");
-    terminal_write("The OS is now modular.\n");
+    //checking 6th bit.
+    if (mbi->flags & (1 << 6)) {
+        terminal_write("Memory map provided by GRUB!\n");
+        init_pmm(mbi);
+        uint32_t total_memory_kb = mbi->mem_upper + 1024;
+    } else {
+        terminal_write("No memory map provided!\n");
+    }
     init_gdt();
     terminal_write("GDT is loaded. Ring 3 structure is based.\n");
     init_idt();
