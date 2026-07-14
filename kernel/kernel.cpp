@@ -31,7 +31,20 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     terminal_write("Timer initialized at 1000Hz.\n");
     asm volatile("sti");
     terminal_write("Keystroke is being waited.\n");
-
+      
+    void* frame1 = pmm_alloc_frame();
+    void* frame2 = pmm_alloc_frame();
+    
+    if (frame1 && frame2) {
+        terminal_write("PMM handed out two physical frames!\n");
+    } else {
+        terminal_write("PMM failed to allocate memory.\n");
+    }
+    
+    // Free them back to the pool
+    pmm_free_frame(frame1);
+    pmm_free_frame(frame2);
+    terminal_write("PMM: Frames freed.\n");
     while(1)
     {
         asm volatile("hlt");
