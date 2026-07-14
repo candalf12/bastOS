@@ -4,7 +4,7 @@ CC = i686-elf-gcc
 CFLAGS = -std=c++17 -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -Iinclude
 LDFLAGS = -T linker.ld -ffreestanding -O2 -nostdlib -lgcc
 
-OBJS = build/boot.o build/paging.o build/gdt_flush.o build/keyboard.o build/gdt.o build/idt_flush.o build/idt.o build/isrs.o build/isr.o build/pic.o build/timer.o build/terminal.o build/pmm.o build/kernel.o
+OBJS = build/boot.o build/paging_enable.o build/paging.o build/gdt_flush.o build/keyboard.o build/gdt.o build/idt_flush.o build/idt.o build/isrs.o build/isr.o build/pic.o build/timer.o build/terminal.o build/pmm.o build/kernel.o
 
 all: build/bastOs.bin
 
@@ -15,6 +15,8 @@ build/boot.o: arch/i386/boot.s
 build/gdt_flush.o: arch/i386/gdt_flush.s
 	$(AS) arch/i386/gdt_flush.s -o build/gdt_flush.o
 
+build/paging_enable.o: arch/i386/paging_enable.s
+	$(AS) arch/i386/paging_enable.s -o build/paging_enable.o
 build/gdt.o: arch/i386/gdt.cpp
 	$(CC) -c arch/i386/gdt.cpp -o build/gdt.o $(CFLAGS)
 

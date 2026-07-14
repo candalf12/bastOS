@@ -16,8 +16,6 @@ typedef uint32_t page_directory_entry_t;
 // The Page Directory contains 1024 pointers to Page Tables
 struct page_directory_t {
     page_directory_entry_t entries[1024];
-    
-    page_table_t* tables[1024];
 };
 
 //hardware flags  
@@ -28,4 +26,7 @@ struct page_directory_t {
 void init_paging();
 void map_page(uint32_t physical_address, uint32_t virtual_address, uint32_t flags);
 
+
+extern "C" void load_page_directory(uint32_t*);
+extern "C" void enable_paging();
 #endif
