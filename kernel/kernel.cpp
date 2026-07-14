@@ -6,7 +6,7 @@
 #include "multiboot.h"
 #include "pmm.h"
 #include "paging.h"
-
+#include "kheap.h"
 extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     terminal_initialize();
     if(magic != MULTIBOOT_MAGIC){
@@ -48,6 +48,16 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     pmm_free_frame(frame1);
     pmm_free_frame(frame2);
     terminal_write("PMM: Frames freed.\n");
+    
+uint32_t* dynamic_array = (uint32_t*)kmalloc(100 * sizeof(uint32_t));
+    
+    if (dynamic_array) {
+        // Let's write some data to this dynamically allocated memory
+        dynamic_array[0] = 0xCAFEBABE;
+        dynamic_array[99] = 0xDEADBEEF;
+        
+        terminal_write("kmalloc SUCCESS: Memory allocated and written to!\n");
+    }
     while(1)
     {
         asm volatile("hlt");
