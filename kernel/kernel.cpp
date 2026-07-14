@@ -5,6 +5,8 @@
 #include "timer.h"
 #include "multiboot.h"
 #include "pmm.h"
+#include "paging.h"
+
 extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     terminal_initialize();
     if(magic != MULTIBOOT_MAGIC){
@@ -16,6 +18,8 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     if (mbi->flags & (1 << 6)) {
         terminal_write("Memory map provided by GRUB!\n");
         init_pmm(mbi);
+        init_paging();
+        terminal_write("Paging works.");
         uint32_t total_memory_kb = mbi->mem_upper + 1024;
     } else {
         terminal_write("No memory map provided!\n");
@@ -30,7 +34,6 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     init_timer(1000);
     terminal_write("Timer initialized at 1000Hz.\n");
     asm volatile("sti");
-    terminal_write("Keystroke is being waited.\n");
       
     void* frame1 = pmm_alloc_frame();
     void* frame2 = pmm_alloc_frame();
