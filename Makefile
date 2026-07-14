@@ -4,62 +4,29 @@ CC = i686-elf-gcc
 CFLAGS = -std=c++17 -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -Iinclude
 LDFLAGS = -T linker.ld -ffreestanding -O2 -nostdlib -lgcc
 
-OBJS = build/boot.o build/kheap.o build/paging_enable.o build/paging.o build/gdt_flush.o build/keyboard.o build/gdt.o build/idt_flush.o build/idt.o build/isrs.o build/isr.o build/pic.o build/timer.o build/terminal.o build/pmm.o build/kernel.o
+# autamitically finding the files.
+CXX_SOURCES = $(wildcard kernel/*.cpp mm/*.cpp drivers/*.cpp arch/i386/*.cpp)
+ASM_SOURCES = $(wildcard arch/i386/*.s)
+
+
+CXX_OBJS = $(patsubst %.cpp, build/%.o, $(notdir $(CXX_SOURCES)))
+ASM_OBJS = $(patsubst %.s, build/%.o, $(notdir $(ASM_SOURCES)))
+
+OBJS = $(ASM_OBJS) $(CXX_OBJS)
 
 all: build/bastOs.bin
 
-# --- ARCHITECTURE (arch/i386) ---
-build/boot.o: arch/i386/boot.s
-	$(AS) arch/i386/boot.s -o build/boot.o
-
-build/gdt_flush.o: arch/i386/gdt_flush.s
-	$(AS) arch/i386/gdt_flush.s -o build/gdt_flush.o
-
-build/paging_enable.o: arch/i386/paging_enable.s
-	$(AS) arch/i386/paging_enable.s -o build/paging_enable.o
-build/gdt.o: arch/i386/gdt.cpp
-	$(CC) -c arch/i386/gdt.cpp -o build/gdt.o $(CFLAGS)
-
-build/idt_flush.o: arch/i386/idt_flush.s
-	$(AS) arch/i386/idt_flush.s -o build/idt_flush.o
-
-build/idt.o: arch/i386/idt.cpp
-	$(CC) -c arch/i386/idt.cpp -o build/idt.o $(CFLAGS)
-
-build/isrs.o: arch/i386/isrs.s
-	$(AS) arch/i386/isrs.s -o build/isrs.o
-
-build/isr.o: arch/i386/isr.cpp
-	$(CC) -c arch/i386/isr.cpp -o build/isr.o $(CFLAGS)
-
-# --- DRIVERS (drivers) ---
-build/pic.o: drivers/pic.cpp
-	$(CC) -c drivers/pic.cpp -o build/pic.o $(CFLAGS)
-
-build/timer.o: drivers/timer.cpp
-	$(CC) -c drivers/timer.cpp -o build/timer.o $(CFLAGS)
-
-build/kheap.o: drivers/kheap.cpp
-	$(CC) -c drivers/kheap.cpp -o build/kheap.o $(CFLAGS)
-
-build/pmm.o: drivers/pmm.cpp
-	$(CC) -c drivers/pmm.cpp -o build/pmm.o $(CFLAGS)
-
-build/paging.o: drivers/paging.cpp
-	$(CC) -c drivers/paging.cpp -o build/paging.o $(CFLAGS)
-
-build/terminal.o: drivers/terminal.cpp
-	$(CC) -c drivers/terminal.cpp -o build/terminal.o $(CFLAGS)
-
-build/keyboard.o: drivers/keyboard.cpp
-	$(CC) -c drivers/keyboard.cpp -o build/keyboard.o $(CFLAGS)
-# --- KERNEL (kernel) ---
-build/kernel.o: kernel/kernel.cpp
-	$(CC) -c kernel/kernel.cpp -o build/kernel.o $(CFLAGS)
-
-# --- LINKING & RUNNING ---
 build/bastOs.bin: $(OBJS)
-	$(CC) $(LDFLAGS) -o build/bastOs.bin $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $^
+
+#to find the files in the folders 
+VPATH = kernel mm drivers arch/i386
+
+build/%.o: %.cpp
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+build/%.o: %.s
+	$(AS) $< -o $@
 
 run: build/bastOs.bin
 	qemu-system-i386 -kernel build/bastOs.bin -display cocoa,zoom-to-fit=on
