@@ -60,6 +60,10 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     }
     volatile uint32_t* bad_ptr = (volatile uint32_t*) 0xA00000;
     *bad_ptr = 0xDEADBEEF;
+    if(*bad_ptr = 0xDEADBEEF)
+    {
+        terminal_write("Paging worked.");
+    }
     while(1)
     {
         asm volatile("hlt");

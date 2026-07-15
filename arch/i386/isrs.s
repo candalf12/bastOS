@@ -66,7 +66,9 @@ isr_common_stub:
     mov %ax, %gs
 
     #cpp called 
+    push %esp
     call isr_handler
+    add $4, %esp
 
     #restore original state
     pop %eax
