@@ -112,3 +112,30 @@ void terminal_write(const char* data) {
     }
     terminal_update_cursor(terminal_column, terminal_row);
 }
+void terminal_write_hex(uint32_t n) {
+    int tmp;
+    terminal_write("0x");
+
+    bool noZeroes = true;
+
+    for (int i = 28; i > 0; i -= 4) {
+        tmp = (n >> i) & 0xF;
+        if (tmp == 0 && noZeroes != false) {
+            continue;
+        }
+        
+        noZeroes = false;
+        if (tmp >= 0xA) {
+            terminal_putchar(tmp - 0xA + 'a');
+        } else {
+            terminal_putchar(tmp + '0');
+        }
+    }
+
+    tmp = n & 0xF;
+    if (tmp >= 0xA) {
+        terminal_putchar(tmp - 0xA + 'a');
+    } else {
+        terminal_putchar(tmp + '0');
+    }
+}

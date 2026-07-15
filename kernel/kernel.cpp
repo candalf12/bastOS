@@ -49,7 +49,7 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     pmm_free_frame(frame2);
     terminal_write("PMM: Frames freed.\n");
     
-uint32_t* dynamic_array = (uint32_t*)kmalloc(100 * sizeof(uint32_t));
+    uint32_t* dynamic_array = (uint32_t*)kmalloc(100 * sizeof(uint32_t));
     
     if (dynamic_array) {
         // Let's write some data to this dynamically allocated memory
@@ -58,6 +58,8 @@ uint32_t* dynamic_array = (uint32_t*)kmalloc(100 * sizeof(uint32_t));
         
         terminal_write("kmalloc SUCCESS: Memory allocated and written to!\n");
     }
+    volatile uint32_t* bad_ptr = (volatile uint32_t*) 0xA00000;
+    *bad_ptr = 0xDEADBEEF;
     while(1)
     {
         asm volatile("hlt");
