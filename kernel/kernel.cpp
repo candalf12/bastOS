@@ -49,18 +49,26 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     pmm_free_frame(frame2);
     terminal_write("PMM: Frames freed.\n");
     
-    uint32_t* dynamic_array = (uint32_t*)kmalloc(100 * sizeof(uint32_t));
-    
-    if (dynamic_array) {
-        // Let's write some data to this dynamically allocated memory
-        dynamic_array[0] = 0xCAFEBABE;
-        dynamic_array[99] = 0xDEADBEEF;
-        
-        terminal_write("kmalloc SUCCESS: Memory allocated and written to!\n");
+    init_kheap();
+    void* ptr1 = kmalloc(100);
+    terminal_write_hex((uint32_t)ptr1);
+    terminal_write("\n");
+    void* ptr2 = kmalloc(200);
+    terminal_write_hex((uint32_t)ptr2);
+    terminal_write("\n");
+    kfree(ptr1);
+    void* ptr3 = kmalloc(50);
+    terminal_write_hex((uint32_t)ptr3);
+    terminal_write("\n");
+    if(ptr3 == ptr1)
+    {
+        terminal_write("ptr3 used the memory for ptr1. Kfree function works.\n");
     }
+    terminal_write("Linked list malloc is implemented.");
+
     volatile uint32_t* bad_ptr = (volatile uint32_t*) 0xA00000;
     *bad_ptr = 0xDEADBEEF;
-    if(*bad_ptr = 0xDEADBEEF)
+    if(*bad_ptr == 0xDEADBEEF)
     {
         terminal_write("Paging worked.");
     }

@@ -56,7 +56,8 @@ extern "C" void isr_handler(registers_t* regs) {
             
             if (phys_frame != 0) {
                 map_page(phys_frame, page_aligned_addr, PAGE_PRESENT | PAGE_RW);
-                load_page_directory((uint32_t*)kernel_directory);
+                asm volatile("invlpg (%0)" ::"r" (page_aligned_addr) : "memory");
+
                 return;
             }
         }
