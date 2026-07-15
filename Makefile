@@ -1,7 +1,7 @@
 AS = i686-elf-as
 CC = i686-elf-gcc
 
-CFLAGS = -std=c++17 -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -Iinclude
+CFLAGS = -std=c++17 -ffreestanding -O2 -Wall -Wextra -fstack-protector-all -fno-exceptions -fno-rtti -Iinclude
 LDFLAGS = -T linker.ld -ffreestanding -O2 -nostdlib -lgcc
 
 # autamitically finding the files.
