@@ -2,16 +2,10 @@
 #include "io.h"
 #include "pic.h"
 #include "terminal.h"
+#include "task.h"
 
 uint32_t tick = 0;
 
-extern "C" void timer_handler() {
-    tick++;
-    // if (tick % 1000 == 0) {
-    //     terminal_write(".");
-    // }
-    pic_send_eoi(0);
-}
 
 void init_timer(uint32_t frequency) {
     uint32_t divisor = 1193180 / frequency;
@@ -24,4 +18,9 @@ void init_timer(uint32_t frequency) {
 
     outb(0x40, l);
     outb(0x40, h);
+}
+extern "C" void timer_handler(registers_t* regs) {
+    tick++;    
+    pic_send_eoi(0); 
+    switch_task_cpp();
 }

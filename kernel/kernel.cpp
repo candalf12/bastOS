@@ -7,7 +7,18 @@
 #include "pmm.h"
 #include "paging.h"
 #include "kheap.h"
+#include "task.h"  
 
+
+
+void my_second_thread() {
+    asm volatile("sti");
+    while(1) {
+        terminal_write("B");
+        // Delay loop so it doesn't print instantly
+        for (volatile int i = 0; i < 10000000; i++); 
+    }
+}
 
 extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     terminal_initialize();
@@ -50,9 +61,13 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     pmm_free_frame(frame2);
     terminal_write("PMM: Frames freed.\n");
 
-    // 1. Initialize the Heap system
     init_kheap();
-    
+    init_tasking();
+    create_thread(my_second_thread);
+    while(1) {
+        terminal_write("A");
+        for (volatile int i = 0; i < 10000000; i++); 
+    }
 
     while(1)
     {
