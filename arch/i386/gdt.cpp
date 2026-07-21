@@ -1,8 +1,9 @@
 #include "gdt.h"
-
+tss_entry_t tss_entry;
+uint8_t kernel_stack[4096];
 extern "C" void gdt_flush(uint32_t);
 
-gdt_entry_t gdt_entries[5];
+gdt_entry_t gdt_entries[6];
 gdt_ptr_t   gdt_ptr;
 
 void gdt_set_gate(int32_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran) {
@@ -16,10 +17,24 @@ void gdt_set_gate(int32_t num, uint32_t base, uint32_t limit, uint8_t access, ui
     gdt_entries[num].granularity |= gran & 0xF0;
     gdt_entries[num].access      = access;
 }
+void write_tss(int32_t num, uint16_t ss0, uint32_t esp0) {
+    uint32_t base = (uint32_t) &tss_entry;
+    uint32_t limit = base + sizeof(tss_entry);
 
+    //adding tss to gdt
+    gdt_set_gate(num, base, limit, 0xE9, 0x00);
+
+
+    __builtin_memset(&tss_entry, 0, sizeof(tss_entry));
+
+    tss_entry.ss0  = ss0;  // Set the kernel stack segment
+    tss_entry.esp0 = esp0; // Set the kernel stack pointer
+    
+    tss_entry.iomap_base = sizeof(tss_entry);
+}
 void init_gdt() {
     //Set up the GDT pointer (Size of table minus 1, and the memory address)
-    gdt_ptr.limit = (sizeof(gdt_entry_t) * 5) - 1;
+    gdt_ptr.limit = (sizeof(gdt_entry_t) * 6) - 1;
     gdt_ptr.base  = (uint32_t)&gdt_entries;
 
     // The Null Segment (Required by CPU)
@@ -36,6 +51,8 @@ void init_gdt() {
 
     //User Data Segment (Access: 0xF2, Granularity: 0xCF)
     gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); 
+    write_tss(5, 0x10, (uint32_t)&kernel_stack + 4096); 
 
     gdt_flush((uint32_t)&gdt_ptr);
+    tss_flush();
 }

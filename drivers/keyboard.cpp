@@ -2,8 +2,9 @@
 #include "io.h"
 #include "pic.h"
 #include "terminal.h"
+#include "shell.h"
 
-// ASCII translation table.
+
 const char kbd_US[128] = {
     0,  27, '1', '2', '3', '4', '5', '6', '7', '8', /* 9 */
     '9', '0', '-', '=', '\b', /* Backspace */
@@ -18,20 +19,32 @@ const char kbd_US[128] = {
     '*', 0, ' ', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
+char shell_buffer[256];
+uint8_t shell_index = 0;
+
 extern "C" void keyboard_handler() {
-    // Read the raw scancode from the keyboard hardware port
     uint8_t scancode = inb(0x60);
 
-    // The highest bit (0x80) is set if a key was RELEASED.
-    // If it is not set, the key was PRESSED. Let's only print presses.
     if (!(scancode & 0x80)) {
         char c = kbd_US[scancode];
         
-        // Convert the single char to a string format for our terminal
-        char str[2] = {c, '\0'};
-        terminal_write(str);
+        if (c == '\n') {
+            shell_buffer[shell_index] = '\0';
+            execute_command(shell_buffer);
+            shell_index = 0;
+        } 
+        else if (c == '\b') {
+            if (shell_index > 0) {
+                shell_index--;
+                terminal_putchar('\b');
+            }
+        } 
+        else if (c != 0 && shell_index < 255) {
+            shell_buffer[shell_index] = c;
+            shell_index++;
+            char str[2] = {c, '\0'};
+            terminal_write(str);
+        }
     }
-
-    //telling the master pic that I got it 
     pic_send_eoi(1);
 }

@@ -17,7 +17,7 @@ void map_page(uint32_t physical_address, uint32_t virtual_address, uint32_t flag
         //create a pointer.
         kernel_tables[pd_index] = (page_table_t*)new_table_phys;
         
-        kernel_directory->entries[pd_index] = new_table_phys | PAGE_PRESENT | PAGE_RW;
+        kernel_directory->entries[pd_index] = new_table_phys | PAGE_PRESENT | PAGE_RW | PAGE_USER;
 
         for (int i = 0; i < 1024; i++) {
             kernel_tables[pd_index]->entries[i] = 0;
@@ -39,7 +39,7 @@ void init_paging() {
     // We map 0x00000000 to 0x00400000.
     for (uint32_t i = 0; i < 0x400000; i += PMM_FRAME_SIZE) {
         //kernel only
-        map_page(i, i, PAGE_PRESENT | PAGE_RW);
+        map_page(i, i, PAGE_PRESENT | PAGE_RW | PAGE_USER);
     }
 
     load_page_directory((uint32_t*)kernel_directory);

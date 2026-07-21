@@ -9,17 +9,6 @@
 #include "kheap.h"
 #include "task.h"  
 
-
-
-void my_second_thread() {
-    asm volatile("sti");
-    while(1) {
-        terminal_write("B");
-        // Delay loop so it doesn't print instantly
-        for (volatile int i = 0; i < 10000000; i++); 
-    }
-}
-
 extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     terminal_initialize();
     if(magic != MULTIBOOT_MAGIC){
@@ -29,45 +18,39 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     terminal_write("Welcome to bastOS\n");
     
     if (mbi->flags & (1 << 6)) {
-        terminal_write("Memory map provided by GRUB!\n");
+
         init_pmm(mbi);
         init_paging();
-        terminal_write("Paging works.\n");
+
     } else {
         terminal_write("No memory map provided!\n");
     }
     
     init_gdt();
-    terminal_write("GDT is loaded. Ring 3 structure is based.\n");
+
     init_idt();
-    terminal_write("IDT is loaded. Interrupts prepared.\n");
+
     
     pic_remap(0x20,0x28);
-    terminal_write("PIC reprogrammed.\n");
+ 
     init_timer(1000);
-    terminal_write("Timer initialized at 1000Hz.\n");
+  
     asm volatile("sti");
       
     void* frame1 = pmm_alloc_frame();
     void* frame2 = pmm_alloc_frame();
     
-    if (frame1 && frame2) {
-        terminal_write("PMM handed out two physical frames!\n");
-    } else {
-        terminal_write("PMM failed to allocate memory.\n");
-    }
     
     pmm_free_frame(frame1);
     pmm_free_frame(frame2);
-    terminal_write("PMM: Frames freed.\n");
+   
 
     init_kheap();
     init_tasking();
-    create_thread(my_second_thread);
-    while(1) {
-        terminal_write("A");
-        for (volatile int i = 0; i < 10000000; i++); 
-    }
+
+    terminal_write("\n\n");
+    terminal_write("bastOS> ");
+    enter_user_mode();
 
     while(1)
     {
