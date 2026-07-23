@@ -8,6 +8,7 @@
 #include "paging.h"
 #include "kheap.h"
 #include "task.h"  
+#include "pci.h"
 
 extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     terminal_initialize();
@@ -50,6 +51,7 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
 
     terminal_write("\n\n");
     terminal_write("bastOS> ");
+    init_pci();
     enter_user_mode();
 
     while(1)
